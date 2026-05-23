@@ -9,6 +9,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+CSRF_TRUSTED_ORIGINS = ['https://web-production-db254.up.railway.app']
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
