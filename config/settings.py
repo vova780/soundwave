@@ -9,7 +9,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-CSRF_TRUSTED_ORIGINS = ['https://web-production-db254.up.railway.app']
+CSRF_TRUSTED_ORIGINS = [
+    "https://soundwave.up.railway.app",
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
