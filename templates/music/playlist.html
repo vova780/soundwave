@@ -1,0 +1,44 @@
+{% extends 'music/base.html' %}
+{% block title %}{{ playlist.name }} — SoundWave{% endblock %}
+{% block content %}
+<section class="section">
+    <div class="artist-hero">
+        <div class="artist-hero-avatar" style="background:linear-gradient(135deg,#7c7c7c,#2d282d)">🎧</div>
+        <div class="artist-hero-info">
+            <div class="artist-hero-label">Плейлист · {{ owner.username }}</div>
+            <h1 class="artist-hero-name">{{ playlist.name }}</h1>
+            <div class="artist-hero-stats">{{ tracks|length }} треків</div>
+        </div>
+    </div>
+
+    {% if tracks %}
+    <div class="tracks-list" style="margin-top:2rem">
+        {% for track in tracks %}
+        <div class="track-row" onclick="playTrack({{ track.id }},'{{ track.title|escapejs }}','{{ track.artist_name|escapejs }}','/media/{{ track.file_path }}','{% if track.cover_path %}/media/{{ track.cover_path }}{% endif %}')">
+            <span class="track-row-num">{{ forloop.counter }}</span>
+            <div class="track-row-thumb">
+                {% if track.cover_path %}<img src="/media/{{ track.cover_path }}" alt="">{% else %}<span>♪</span>{% endif %}
+            </div>
+            <div class="track-row-wave"><span></span><span></span><span></span></div>
+            <div class="track-row-info">
+                <span class="track-row-title">{{ track.title }}</span>
+                <span class="track-row-artist">{{ track.artist_name }}</span>
+            </div>
+            <span class="track-row-plays">{{ track.play_count }} ▶</span>
+            {% if user and user.id == playlist.user_id %}
+            <form method="post" action="{% url 'remove_from_playlist' playlist.id track.id %}" style="display:inline" onclick="event.stopPropagation()">
+                {% csrf_token %}
+                <button type="submit" class="btn-del">✕</button>
+            </form>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state" style="margin-top:2rem">
+        <div class="empty-icon">🎵</div>
+        <p>Плейлист порожній. Додавай треки з <a href="{% url 'index' %}">головної</a>!</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

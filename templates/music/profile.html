@@ -1,0 +1,57 @@
+{% extends 'music/base.html' %}
+{% block title %}Профіль — SoundWave{% endblock %}
+{% block content %}
+<section class="section">
+    <div class="profile-hero">
+        <div class="profile-avatar">{{ user.username|first|upper }}</div>
+        <div>
+            <h1 class="profile-name">{{ user.username }}</h1>
+            <div class="profile-stats">{{ playlists|length }} плейлистів · {{ subscribed_artists|length }} підписок</div>
+        </div>
+    </div>
+
+    <div class="profile-section">
+        <div class="section-header">
+            <h2 class="section-title" style="margin-bottom:0">🎧 Мої плейлисти</h2>
+        </div>
+        <form method="post" action="{% url 'create_playlist' %}" class="create-pl-form">
+            {% csrf_token %}
+            {{ create_form.name }}
+            <button type="submit" class="btn-primary btn-sm">Створити</button>
+        </form>
+        {% if playlists %}
+        <div class="playlists-grid">
+            {% for pl in playlists %}
+            <div class="pl-card">
+                <a href="{% url 'playlist_detail' pl.id %}" class="pl-card-name">{{ pl.name }}</a>
+                <div class="pl-card-count">{{ pl.track_ids|length }} треків</div>
+                <form method="post" action="{% url 'delete_playlist' pl.id %}" style="display:inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-del" onclick="return confirm('Видалити плейлист?')">✕</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state" style="padding:1.5rem 0"><p>Немає плейлистів. Створи перший вище!</p></div>
+        {% endif %}
+    </div>
+
+    <div class="profile-section">
+        <h2 class="section-title">Підписки</h2>
+        {% if subscribed_artists %}
+        <div class="artists-grid">
+            {% for artist in subscribed_artists %}
+            <a href="{% url 'artist_detail' artist.id %}" class="artist-card">
+                <div class="artist-avatar">{{ artist.name|first|upper }}</div>
+                <div class="artist-name">{{ artist.name }}</div>
+                <div class="artist-stats">{{ artist.track_count }} треків</div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state" style="padding:1.5rem 0"><p>Немає підписок. Підпишись на виконавців!</p></div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

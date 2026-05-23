@@ -1,0 +1,52 @@
+{% extends 'music/base.html' %}
+{% block title %}{% if mode == 'register' %}Реєстрація{% else %}Увійти{% endif %} — SoundWave{% endblock %}
+{% block content %}
+<section class="section auth-section">
+    <div class="auth-card">
+        <div class="auth-logo">🎧</div>
+        <h2 class="auth-title">{% if mode == 'register' %}Створити акаунт{% else %}Ласкаво просимо{% endif %}</h2>
+        <form method="post" class="upload-form">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+            <div class="form-errors">{% for e in form.non_field_errors %}{{ e }}{% endfor %}</div>
+            {% endif %}
+            {% for field in form %}
+            <div class="form-group">
+                <label>{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}<div class="form-errors">{{ field.errors.0 }}</div>{% endif %}
+            </div>
+            {% endfor %}
+            <button type="submit" class="btn-primary">{% if mode == 'register' %}Зареєструватись{% else %}Увійти{% endif %}</button>
+        </form>
+        <div class="auth-switch">
+            {% if mode == 'register' %}
+            Вже є акаунт? <a href="{% url 'login' %}">Увійти</a>
+            {% else %}
+            Немає акаунту? <a href="{% url 'register' %}">Реєстрація</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<style>
+.player {
+    display: none;
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
+.btn-primary {
+    display: block;
+    margin: 0 auto;
+}
+
+.main-content {
+    align-items: flex-start;
+    padding-top: 0px;
+}
+</style>
+{% endblock %}

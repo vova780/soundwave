@@ -1,0 +1,57 @@
+{% extends 'music/base.html' %}
+{% block title %}{{ artist.name }} — SoundWave{% endblock %}
+{% block content %}
+<section class="section">
+    <div class="artist-hero">
+        <div class="artist-hero-avatar">{{ artist.name|first|upper }}</div>
+        <div class="artist-hero-info">
+            <div class="artist-hero-label">Виконавець</div>
+            <h1 class="artist-hero-name">{{ artist.name }}</h1>
+            <div class="artist-hero-stats">{{ tracks|length }} треків · <span id="subCount">{{ sub_count }}</span> підписників</div>
+            {% if user %}
+            <button class="sub-btn {% if subscribed %}sub-btn--active{% endif %}" id="subBtn"
+                    onclick="toggleSub({{ artist.id }})">
+                {% if subscribed %}✓ Ви підписані{% else %}+ Підписатись{% endif %}
+            </button>
+            {% endif %}
+        </div>
+    </div>
+    <h2 class="section-title" style="margin-top:2rem">Треки</h2>
+    <div class="tracks-list">
+        {% for track in tracks %}
+        <div class="track-row" onclick="playTrack({{ track.id }},'{{ track.title|escapejs }}','{{ track.artist_name|escapejs }}','/media/{{ track.file_path }}','{% if track.cover_path %}/media/{{ track.cover_path }}{% endif %}')">
+            <span class="track-row-num">{{ forloop.counter }}</span>
+            <div class="track-row-thumb">
+                {% if track.cover_path %}<img src="/media/{{ track.cover_path }}" alt="">{% else %}<span>♪</span>{% endif %}
+            </div>
+            <div class="track-row-wave"><span></span><span></span><span></span></div>
+            <div class="track-row-info">
+                <span class="track-row-title">{{ track.title }}</span>
+            </div>
+            <span class="track-row-plays">{{ track.play_count }} ▶</span>
+            {% if user %}
+            <button class="add-pl-btn" title="До плейлисту" onclick="openPlaylistModal(event,{{ track.id }})">＋</button>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
+{% block extra_js %}
+<script>
+function toggleSub(artistId) {
+    fetch(`/artist/${artistId}/subscribe/`, {
+        method: 'POST',
+        headers: {'X-CSRFToken': getCsrf()}
+    }).then(r => r.json()).then(d => {
+        const btn = document.getElementById('subBtn');
+        document.getElementById('subCount').textContent = d.count;
+        if (d.subscribed) {
+            btn.textContent = '✓ Ви підписані'; btn.classList.add('sub-btn--active');
+        } else {
+            btn.textContent = '+ Підписатись'; btn.classList.remove('sub-btn--active');
+        }
+    });
+}
+</script>
+{% endblock %}

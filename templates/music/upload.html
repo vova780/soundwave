@@ -1,0 +1,94 @@
+{% extends 'music/base.html' %}
+{% block title %}Завантажити трек — SoundWave{% endblock %}
+{% block content %}
+<section class="section upload-section">
+    <h2 class="section-title">Завантажити трек</h2>
+    <form class="upload-form" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label>Назва</label>{{ form.title }}
+        </div>
+        <div class="form-group">
+            <label>Виконавець</label>{{ form.artist }}
+        </div>
+        <div class="form-group">
+            <label>Обкладинка (необов'язково)</label>
+            <div class="file-drop-area" id="coverDrop">
+                <div class="file-drop-text" id="coverText">Завантаж зображення обкладинки</div>
+                {{ form.cover_image }}
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Аудіо файл (MP3, WAV, OGG)</label>
+            <div class="file-drop-area" id="audioDrop">
+                <div class="file-drop-text" id="audioText">Перетягни файл або натисни для вибору</div>
+                {{ form.audio_file }}
+            </div>
+        </div>
+        {% if form.errors %}
+        <div class="form-errors">{% for f in form %}{% for e in f.errors %}<p>{{ e }}</p>{% endfor %}{% endfor %}</div>
+        {% endif %}
+        <button type="submit" class="btn-primary">Завантажити трек ↑</button>
+    </form>
+</section>
+{% endblock %}
+{% block extra_js %}
+<script>
+function setupDrop(areaId, inputSel, textId, isImage) {
+    const area = document.getElementById(areaId);
+    const input = area.querySelector(inputSel);
+    const text = document.getElementById(textId);
+    input.addEventListener('change', () => {
+        if (!input.files[0]) return;
+        if (isImage) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                document.getElementById('coverPreviewWrap').innerHTML =
+                    `<img src="${e.target.result}" style="max-height:80px;border-radius:8px;">`;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+        text.textContent = '✓ ' + input.files[0].name;
+    });
+    area.addEventListener('dragover', e => { e.preventDefault(); area.classList.add('drag-over'); });
+    area.addEventListener('dragleave', () => area.classList.remove('drag-over'));
+    area.addEventListener('drop', e => {
+        e.preventDefault(); area.classList.remove('drag-over');
+        const f = e.dataTransfer.files[0]; if (!f) return;
+        const dt = new DataTransfer(); dt.items.add(f);
+        input.files = dt.files;
+        input.dispatchEvent(new Event('change'));
+    });
+}
+setupDrop('coverDrop', 'input[type=file]', 'coverText', true);
+setupDrop('audioDrop', 'input[accept*=audio]', 'audioText', false);
+</script>
+
+<style>
+.player {
+    display: none;
+}
+
+.btn-primary {
+    display: block;
+    margin: 0 auto;
+}
+
+.main-content {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding-top: 40px;
+}
+
+.section-title {
+    text-align: center;
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+</style>
+{% endblock %}

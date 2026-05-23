@@ -1,0 +1,84 @@
+{% extends 'music/base.html' %}
+{% load static %}
+{% block title %}SoundWave{% endblock %}
+{% block content %}
+
+<section class="section">
+    <div class="section-header">
+        <h2 class="section-title">Топ треків</h2>
+        <div class="carousel-controls">
+            <button class="car-btn" onclick="scrollCarousel('tracksCarousel',-1)">←</button>
+            <button class="car-btn" onclick="scrollCarousel('tracksCarousel',1)">→</button>
+        </div>
+    </div>
+    {% if top_tracks %}
+    <div class="carousel" id="tracksCarousel">
+        {% for track in top_tracks %}
+        <div class="track-card" onclick="playTrack({{ track.id }},'{{ track.title|escapejs }}','{{ track.artist_name|escapejs }}','/media/{{ track.file_path }}','{% if track.cover_path %}/media/{{ track.cover_path }}{% endif %}')">
+            <div class="track-card-art">
+                {% if track.cover_path %}
+                <img src="/media/{{ track.cover_path }}" alt="{{ track.title }}" class="track-cover-img">
+                {% else %}
+                <div class="track-card-num">{{ forloop.counter }}</div>
+                {% endif %}
+                <div class="track-play-icon">▶</div>
+            </div>
+            <div class="track-card-info">
+                <div class="track-card-title">{{ track.title }}</div>
+                <div class="track-card-artist">{{ track.artist_name }}</div>
+                <div class="track-card-plays">{{ track.play_count }} прослуховувань</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state"><div class="empty-icon">🎵</div><p>Треків поки немає. <a href="{% url 'upload' %}">Завантаж перший!</a></p></div>
+    {% endif %}
+</section>
+
+<section class="section">
+    <h2 class="section-title">Топ виконавців</h2>
+    {% if top_artists %}
+    <div class="artists-grid">
+        {% for artist in top_artists %}
+        <a href="{% url 'artist_detail' artist.id %}" class="artist-card">
+            <div class="artist-avatar">{{ artist.name|first|upper }}</div>
+            <div class="artist-name">{{ artist.name }}</div>
+            <div class="artist-stats">{{ artist.total_plays }} прослух. · {{ artist.track_count }} тр.</div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state"><div class="empty-icon">🎤</div><p>Виконавців поки немає</p></div>
+    {% endif %}
+</section>
+
+<section class="section">
+    <h2 class="section-title">Всі треки</h2>
+    {% if all_tracks %}
+    <div class="tracks-list">
+        {% for track in all_tracks %}
+        <div class="track-row" id="track-{{ track.id }}"
+             onclick="playTrack({{ track.id }},'{{ track.title|escapejs }}','{{ track.artist_name|escapejs }}','/media/{{ track.file_path }}','{% if track.cover_path %}/media/{{ track.cover_path }}{% endif %}')">
+            <span class="track-row-num">{{ forloop.counter }}</span>
+            <div class="track-row-thumb">
+                {% if track.cover_path %}<img src="/media/{{ track.cover_path }}" alt="">{% else %}<span>♪</span>{% endif %}
+            </div>
+            <div class="track-row-wave"><span></span><span></span><span></span></div>
+            <div class="track-row-info">
+                <span class="track-row-title">{{ track.title }}</span>
+                <span class="track-row-artist">{{ track.artist_name }}</span>
+            </div>
+            <span class="track-row-plays">{{ track.play_count }} ▶</span>
+            {% if user %}
+            <button class="add-pl-btn" title="До плейлисту" onclick="openPlaylistModal(event,{{ track.id }})">＋</button>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state"><div class="empty-icon">🎼</div><p>Треків немає. <a href="{% url 'upload' %}">Завантаж перший!</a></p></div>
+    {% endif %}
+</section>
+
+{% endblock %}
